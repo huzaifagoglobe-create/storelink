@@ -1,22 +1,30 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PLAN_PRICE_PKR, PLAN_LIMITS, limitLabel, PLAN_LABEL, PLAN_TIERS } from "@/server/plans";
+import { PLAN_PRICE_PKR, PLAN_LIMITS, limitLabel, PLAN_LABEL, PLAN_TIERS, FREE_MODE } from "@/server/plans";
 import { listAllShops } from "@/server/services/shop-service";
 
 export const metadata: Metadata = {
-  title: "Pricing — free to start, honest to grow",
-  description:
-    "StoreLink pricing: free 14-day trial, then Basic Rs 2,500/month, Pro Rs 5,500, Premium Rs 9,999. Every feature on every plan. First 100 shops lock Basic at Rs 1,999 for life.",
+  title: FREE_MODE ? "Pricing — free while we test" : "Pricing — free to start, honest to grow",
+  description: FREE_MODE
+    ? "StoreLink is free right now. Every feature, unlimited products, no card, and no commission on your sales — while we test the product with real Pakistani shops."
+    : "StoreLink pricing: free 14-day trial, then Basic Rs 2,500/month, Pro Rs 5,500, Premium Rs 9,999. Every feature on every plan. First 100 shops lock Basic at Rs 1,999 for life.",
   alternates: { canonical: "/pricing" },
 };
 export const revalidate = 600;
 
-const BILLING_FAQ = [
-  { q: "How do I pay?", a: "Bank transfer or JazzCash/Easypaisa — we message you on WhatsApp before renewal, you pay, and your plan is active within minutes. Human, simple, no card required." },
-  { q: "What if I don't upgrade after the trial?", a: "Your shop pauses — nothing is deleted. Come back any month and switch it on." },
-  { q: "Are there hidden fees or commissions on my sales?", a: "No. We never take a cut of your orders. The monthly plan is the entire price." },
-  { q: "Can I change plans later?", a: "Any time. Upgrade when you need more products; the change applies immediately." },
-];
+const BILLING_FAQ = FREE_MODE
+  ? [
+      { q: "Is it really free?", a: "Yes. Every feature, unlimited products, no card, no commission. We are testing StoreLink with real shops and yours helps us get it right." },
+      { q: "Why is it free?", a: "Because we would rather learn what sellers actually need than guess. Real shops, real orders, real feedback — that is worth more to us right now than a monthly fee." },
+      { q: "Will you charge me later without telling me?", a: "No. If we ever start charging, we will tell you well in advance. Nothing of yours gets deleted and your shop keeps working while you decide." },
+      { q: "Are there hidden fees or commissions on my sales?", a: "No. We never take a cut of your orders — not now, not later. Whatever your buyer pays is yours." },
+    ]
+  : [
+      { q: "How do I pay?", a: "Bank transfer or JazzCash/Easypaisa — we message you on WhatsApp before renewal, you pay, and your plan is active within minutes. Human, simple, no card required." },
+      { q: "What if I don't upgrade after the trial?", a: "Your shop pauses — nothing is deleted. Come back any month and switch it on." },
+      { q: "Are there hidden fees or commissions on my sales?", a: "No. We never take a cut of your orders. The monthly plan is the entire price." },
+      { q: "Can I change plans later?", a: "Any time. Upgrade when you need more products; the change applies immediately." },
+    ];
 
 export default async function PricingPage() {
   let foundingLeft = 100;
@@ -28,6 +36,51 @@ export default async function PricingPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+      {FREE_MODE ? (
+        <>
+          {/* ── FREE BETA ─────────────────────────────────────────────── */}
+          <div className="text-center">
+            <p className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+              FREE WHILE WE TEST
+            </p>
+            <h1 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">
+              Right now, StoreLink is free
+            </h1>
+            <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
+              Every feature. No limits. No card. We&apos;re testing StoreLink with real Pakistani shops
+              before we open it to everyone — and you can be one of them.
+            </p>
+          </div>
+
+          <div className="reveal lift mx-auto mt-12 max-w-lg rounded-3xl border-2 border-primary bg-surface p-8 text-center shadow-xl">
+            <p className="text-sm font-semibold text-muted">EVERYTHING INCLUDED</p>
+            <p className="mt-2 text-5xl font-bold text-ink">
+              Rs 0<span className="text-base font-normal text-muted">/month</span>
+            </p>
+            <p className="mt-2 text-xs text-muted">No card. No commission. Nothing counting down.</p>
+            <ul className="mx-auto mt-7 max-w-xs space-y-2.5 text-left text-sm text-ink">
+              <li>✓ Unlimited products</li>
+              <li>✓ Unlimited categories</li>
+              <li>✓ Unlimited orders — no commission</li>
+              <li>✓ Fake-order protection</li>
+              <li>✓ Khata profit books</li>
+              <li>✓ Bazaar listing (once verified)</li>
+              <li>✓ Referrals, resellers, share cards</li>
+              <li>✓ Up to 5 staff logins</li>
+            </ul>
+            <Link
+              href="/signup?src=pricing-free"
+              className="mt-8 block rounded-xl bg-primary py-3.5 text-center text-sm font-semibold text-primary-foreground transition hover:opacity-90"
+            >
+              Create your free shop
+            </Link>
+            <p className="mt-4 text-xs text-muted">
+              If we ever start charging, we&apos;ll tell you first. Your shop keeps working either way.
+            </p>
+          </div>
+        </>
+      ) : (
+        <>
       <div className="text-center">
         <h1 className="text-3xl font-bold text-ink sm:text-4xl">Pricing that respects your hustle</h1>
         <p className="mx-auto mt-3 max-w-lg text-sm text-muted">
@@ -75,6 +128,8 @@ export default async function PricingPage() {
           <p className="text-base font-bold text-ink">🏆 Founding members: Basic at Rs 1,999/month — for life</p>
           <p className="mt-1 text-sm text-muted">For the first 100 paying shops. {foundingLeft} spots left.</p>
         </div>
+      )}
+        </>
       )}
 
       <section className="mx-auto mt-16 max-w-2xl">

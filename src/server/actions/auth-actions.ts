@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { rateLimitDb, ipFromForwarded } from "@/lib/rate-limit";
 import { findUserForLogin, createUser, setUserPassword } from "../auth/user-service";
 import { verifyPassword } from "../auth/password";
+import { weakPinError } from "../auth/pin-policy";
 import { setSessionCookie, clearSessionCookie } from "../auth/session";
 import { createShop, isSlugTaken, deleteShop, updateShop, getShopBySlug } from "../services/shop-service";
 import { redeemPromoCode } from "../services/growth-services";
@@ -81,6 +82,8 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
   }
   if (whatsapp.length < 8) return { error: "Please enter a valid WhatsApp number." };
   if (!PIN_RE.test(pin)) return { error: "Your PIN must be 4 to 6 digits." };
+  const weak = weakPinError(pin);
+  if (weak) return { error: weak };
   if (pin !== confirmPin) return { error: "The two PINs don't match. Please re-enter them." };
   if (industryChoice === "Other" && !industryOther) {
     return { error: "Please type your industry." };
@@ -198,6 +201,8 @@ export async function resetPasswordAction(
   }
   if (!token) return { error: "This reset link is invalid. Please request a new one." };
   if (!PIN_RE.test(pin)) return { error: "Your new PIN must be 4 to 6 digits." };
+  const weakNew = weakPinError(pin);
+  if (weakNew) return { error: weakNew };
   if (pin !== confirmPin) return { error: "The two PINs don't match. Please re-enter them." };
 
   const userId = await consumePasswordReset(token);

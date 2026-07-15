@@ -20,6 +20,12 @@ function BagMark() {
   );
 }
 
+import type { Metadata } from "next";
+
+// Private area: robots.txt already blocks crawling — this makes sure the page
+// can never be indexed even if a URL is linked from somewhere else.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, shop, isOwner } = await requireSeller();
   const announcement = await latestAnnouncement();

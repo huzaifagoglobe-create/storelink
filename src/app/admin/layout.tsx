@@ -2,6 +2,12 @@ import { requireAdmin } from "@/server/auth/current-admin";
 import { signOutAction } from "@/server/actions/auth-actions";
 import { AdminNav } from "@/components/admin/nav";
 
+import type { Metadata } from "next";
+
+// Private area: robots.txt already blocks crawling — this makes sure the page
+// can never be indexed even if a URL is linked from somewhere else.
+export const metadata: Metadata = { robots: { index: false, follow: false } };
+
 export default async function AdminLayout({
   children,
 }: {

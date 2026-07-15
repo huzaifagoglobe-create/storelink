@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireSeller } from "@/server/auth/current-seller";
-import { PLAN_TIERS, PLAN_LABEL, PLAN_PRICE_PKR, planLimits, limitLabel } from "@/server/plans";
+import { PLAN_TIERS, PLAN_LABEL, PLAN_PRICE_PKR, planLimits, limitLabel, FREE_MODE } from "@/server/plans";
 import { formatCurrency } from "@/lib/format";
 import { supportLink } from "@/lib/site";
 
@@ -17,6 +17,36 @@ export default async function PlanPage() {
   const { shop, isOwner } = await requireSeller();
   if (!isOwner) redirect("/dashboard");
   const current = shop.plan;
+
+  // Free beta: no plans, no prices, nothing to upgrade to.
+  if (FREE_MODE) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-4">
+        <div>
+          <h1 className="text-lg font-semibold text-ink">Your plan</h1>
+          <p className="text-sm text-muted">Everything is free while we test.</p>
+        </div>
+        <div className="rounded-2xl border border-line bg-surface p-6 text-center">
+          <p className="text-3xl">🎉</p>
+          <p className="mt-3 text-base font-semibold text-ink">Everything is free right now</p>
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted">
+            You get every feature with no limits — unlimited products, unlimited categories,
+            and nothing counting down. We&apos;re testing StoreLink with real shops, and yours is one of them.
+          </p>
+          <p className="mx-auto mt-3 max-w-md text-sm text-muted">
+            There is nothing to pay and no card to add. If we ever start charging, we will tell you
+            first — your shop will keep working either way.
+          </p>
+          <a
+            href={supportLink("Hi! I have a question about my StoreLink shop.")}
+            className="mt-5 inline-block rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+          >
+            Ask us anything on WhatsApp
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl space-y-4">

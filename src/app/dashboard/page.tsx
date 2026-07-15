@@ -3,7 +3,7 @@ import Link from "next/link";
 import { requireSeller } from "@/server/auth/current-seller";
 import { listShopProducts } from "@/server/services/product-service";
 import { countCategories } from "@/server/services/category-service";
-import { PLAN_LABEL, PLAN_PRICE_PKR, planLimits, limitLabel } from "@/server/plans";
+import { PLAN_LABEL, PLAN_PRICE_PKR, planLimits, limitLabel, FREE_MODE, FREE_MODE_LABEL } from "@/server/plans";
 import { listShopOrders } from "@/server/services/order-service";
 import { formatCurrency } from "@/lib/format";
 import { StatusBadge } from "@/components/dashboard/status-badge";
@@ -136,20 +136,33 @@ export default async function DashboardHome() {
 
       {/* Plan usage */}
       <div className="rounded-2xl border border-line bg-surface p-4">
-        <p className="text-sm font-medium text-ink">
-          {planLabel} plan
-          {PLAN_PRICE_PKR[shop.plan] > 0
-            ? ` · ${formatCurrency(PLAN_PRICE_PKR[shop.plan], shop.currency)}/mo`
-            : ""}
-        </p>
-        <p className="mt-1 text-sm text-muted">
-          Products {productCount}/{limitLabel(limits.products)} · Categories {categoryCount}/
-          {limitLabel(limits.categories)}
-        </p>
-        {isOwner && (
-        <Link href="/dashboard/plan" className="mt-2 inline-block text-xs font-medium text-primary hover:underline">
-          View plans &amp; upgrade →
-        </Link>
+        {FREE_MODE ? (
+          <>
+            <p className="text-sm font-medium text-ink">
+              {FREE_MODE_LABEL} — everything is free
+            </p>
+            <p className="mt-1 text-sm text-muted">
+              Products {productCount} · Categories {categoryCount} · No limits while we&apos;re testing.
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-sm font-medium text-ink">
+              {planLabel} plan
+              {PLAN_PRICE_PKR[shop.plan] > 0
+                ? ` · ${formatCurrency(PLAN_PRICE_PKR[shop.plan], shop.currency)}/mo`
+                : ""}
+            </p>
+            <p className="mt-1 text-sm text-muted">
+              Products {productCount}/{limitLabel(limits.products)} · Categories {categoryCount}/
+              {limitLabel(limits.categories)}
+            </p>
+            {isOwner && (
+            <Link href="/dashboard/plan" className="mt-2 inline-block text-xs font-medium text-primary hover:underline">
+              View plans &amp; upgrade →
+            </Link>
+            )}
+          </>
         )}
       </div>
 

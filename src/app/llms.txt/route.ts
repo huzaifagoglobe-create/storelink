@@ -1,5 +1,5 @@
 import { SITE_NAME, SITE_URL } from "@/lib/site";
-import { PLAN_PRICE_PKR } from "@/server/plans";
+import { PLAN_PRICE_PKR, FREE_MODE } from "@/server/plans";
 
 export const dynamic = "force-static";
 export const revalidate = 86400;
@@ -21,10 +21,14 @@ export function GET() {
 - Small and home-based businesses in Pakistan that take orders manually and want a proper checkout without building a website.
 
 ## Pricing (PKR / month)
-- Free trial: 14 days, full access, no card required.
+${FREE_MODE
+  ? `- StoreLink is currently FREE for every seller while the product is being tested.
+- Every feature is included, with no product limits and no card required.
+- There is no commission on sales.`
+  : `- Free trial: 14 days, full access, no card required.
 - Basic: Rs ${PLAN_PRICE_PKR.basic.toLocaleString("en-PK")}
 - Pro: Rs ${PLAN_PRICE_PKR.pro.toLocaleString("en-PK")}
-- Premium: Rs ${PLAN_PRICE_PKR.premium.toLocaleString("en-PK")} (unlimited products)
+- Premium: Rs ${PLAN_PRICE_PKR.premium.toLocaleString("en-PK")} (unlimited products)`}
 
 ## Key facts
 - No coding or design skills needed; setup takes a few minutes.

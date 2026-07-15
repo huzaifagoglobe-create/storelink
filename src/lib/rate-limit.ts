@@ -69,15 +69,50 @@ export async function rateLimitDb(
   }
 }
 
+// ─── Client IP resolution ───────────────────────────────────────────────────
+//
+// SECURITY: `X-Forwarded-For` is CLIENT-SUPPLIED. Reading the leftmost value
+// (the old behaviour) let anyone spoof a fresh IP per request and walk straight
+// through every IP-based rate limit — including login brute-force protection.
+//
+// How XFF actually works: each proxy APPENDS the address it received the
+// request from. So with one trusted proxy in front of us (Render, Vercel, etc.):
+//
+//     client sends:  X-Forwarded-For: 9.9.9.9        (a lie)
+//     our proxy adds the real peer:  "9.9.9.9, 203.0.113.7"
+//                                     ^ spoofed        ^ REAL — always rightmost
+//
+// So we count from the RIGHT, never the left. Anything an attacker injects is
+// pushed leftward and ignored.
+//
+// TRUSTED_PROXY_HOPS = how many proxies of ours append to XFF before it reaches
+// the app. 1 = Render/Vercel alone (the default). Put Cloudflare in front too
+// and it becomes 2. Setting this too HIGH would read an attacker value; setting
+// it too LOW groups users behind your own proxy into one bucket (fails safe).
+const TRUSTED_PROXY_HOPS = Math.max(1, Number(process.env.TRUSTED_PROXY_HOPS ?? 1));
+
+function pickIp(xff: string | null, xrip?: string | null): string {
+  if (xff) {
+    const parts = xff.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length > 0) {
+      // The last TRUSTED_PROXY_HOPS entries were appended by infrastructure we
+      // control; the one immediately before them is the real client.
+      const idx = parts.length - TRUSTED_PROXY_HOPS;
+      return parts[idx >= 0 ? idx : 0] ?? "unknown";
+    }
+  }
+  // No XFF at all: only then consider x-real-ip. (Also spoofable in principle,
+  // but a proxy that sets it overwrites any client value, and reaching here at
+  // all means no proxy chain was present.)
+  return xrip?.trim() || "unknown";
+}
+
 /** Best-effort client IP from a Request (for route handlers). */
 export function clientIp(req: Request): string {
-  const xff = req.headers.get("x-forwarded-for");
-  if (xff) return (xff.split(",")[0] ?? "unknown").trim();
-  return req.headers.get("x-real-ip") ?? "unknown";
+  return pickIp(req.headers.get("x-forwarded-for"), req.headers.get("x-real-ip"));
 }
 
 /** Best-effort client IP from a forwarded-for header value (for Server Actions). */
 export function ipFromForwarded(xff: string | null, xrip?: string | null): string {
-  if (xff) return (xff.split(",")[0] ?? "unknown").trim();
-  return xrip ?? "unknown";
+  return pickIp(xff, xrip);
 }

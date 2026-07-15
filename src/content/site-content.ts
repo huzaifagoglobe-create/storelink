@@ -1,3 +1,5 @@
+import { FREE_MODE } from "@/server/plans";
+
 /**
  * ═══════════════════════════════════════════════════════════════════
  *  STORELINK WEBSITE CONTENT — EDIT YOUR WEBSITE'S WORDS HERE
@@ -26,7 +28,9 @@ export const HOME = {
     "Stop running your business from DM screenshots. StoreLink gives you a beautiful shop link, takes Cash-on-Delivery orders while you sleep, warns you about fake orders before you ship, and shows your real profit — all from your phone.",
   heroCtaPrimary: "Start free — 2 minutes",
   heroCtaDemo: "▶ Try the live demo",
-  heroTrust: "Free 14-day trial · No card needed · Your data stays yours",
+  heroTrust: FREE_MODE
+    ? "Free while we test · No card needed · Your data stays yours"
+    : "Free 14-day trial · No card needed · Your data stays yours",
 
   // The 10-second explainer: a stranger understands the product from these 3 lines.
   explainSteps: [
@@ -115,13 +119,18 @@ export const HOW = {
 /* ── FAQ (also powers the AI-answer/AEO schema) ────────────────── */
 export const FAQS = [
   { q: "What is StoreLink?", a: "StoreLink is an all-in-one shop platform for Pakistani sellers. You get your own shop link (like storelink.pk/your-shop) where buyers can see your products and order with Cash on Delivery — plus order management, fake-order protection, profit books, and marketing tools, all from your phone." },
-  { q: "How much does StoreLink cost?", a: "It's free to start with a 14-day trial — no card needed. Paid plans start at Rs 2,500/month (Basic), with Pro at Rs 5,500 and Premium at Rs 9,999 for bigger shops. The first 100 paying shops lock Basic at Rs 1,999/month for life." },
+  { q: "How much does StoreLink cost?", a: FREE_MODE
+      ? "Nothing right now. StoreLink is completely free while we test it with real Pakistani shops — every feature, no product limits, no card needed, and no commission on your sales. If we start charging later, we will tell you first and your shop will keep working."
+      : "It's free to start with a 14-day trial — no card needed. Paid plans start at Rs 2,500/month (Basic), with Pro at Rs 5,500 and Premium at Rs 9,999 for bigger shops. The first 100 paying shops lock Basic at Rs 1,999/month for life." },
   { q: "Do I need a website or technical skills?", a: "No. StoreLink IS your website. If you can use WhatsApp, you can run a StoreLink shop. Signup takes 2 minutes and we pre-load sample products so you just edit instead of starting from zero." },
   { q: "Does StoreLink support Cash on Delivery?", a: "Yes — COD is the heart of StoreLink. Buyers order in 30 seconds without any account or prepayment, and you get the order with all their details ready for your courier." },
   { q: "How does fake-order protection work?", a: "Every order shows you the buyer's delivery history across all StoreLink shops. If a phone number has refused parcels at other shops before, you see a warning BEFORE you ship — so you confirm on WhatsApp first instead of burning courier fees both ways." },
   { q: "Can buyers find my shop, or do I bring all traffic myself?", a: "Both. You share your link on social media, AND verified shops get listed in the StoreLink Bazaar — our public directory with Google landing pages by category and city. Buyers searching for shops in your city can find you." },
   { q: "Who owns my data and customers?", a: "You do. Your products, orders, and customer details are yours. Export or leave any time — no lock-in." },
-  { q: "What happens after my free trial ends?", a: "Your shop pauses until you pick a plan — nothing is deleted. Renewal is manual and human: we message you on WhatsApp, you pay by bank transfer or JazzCash, and your plan is active within minutes." },
+  { q: FREE_MODE ? "Is there a catch? Will you charge me later?" : "What happens after my free trial ends?",
+    a: FREE_MODE
+      ? "No catch. We are testing StoreLink with real shops to learn what sellers actually need, so it is free for now — nothing is counting down. If we ever start charging, we will tell you well before, and nothing of yours gets deleted. Your products, orders and customers stay yours either way."
+      : "Your shop pauses until you pick a plan — nothing is deleted. Renewal is manual and human: we message you on WhatsApp, you pay by bank transfer or JazzCash, and your plan is active within minutes." },
   { q: "Can my staff manage orders without my password?", a: "Yes. You can create up to 5 staff logins. Staff can run daily work — orders, products, khata — but can never change your plan, manage the team, or delete the shop." },
   { q: "Is StoreLink better than selling from Instagram DMs?", a: "Instagram is where buyers FIND you — StoreLink is where they ORDER. DMs mean lost messages, no records, and endless 'price?' questions. A shop link answers everything and takes the order at 2am while you sleep. Keep posting on Instagram; put your StoreLink in the bio." },
 ];

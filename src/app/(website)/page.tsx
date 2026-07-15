@@ -3,7 +3,7 @@ import { LeadForm } from "@/components/marketing/lead-form";
 import { CountUp } from "@/components/website/count-up";
 import { listAllShops } from "@/server/services/shop-service";
 import { listShopOrders } from "@/server/services/order-service";
-import { PLAN_PRICE_PKR, PLAN_LIMITS, limitLabel, PLAN_LABEL, PLAN_TIERS } from "@/server/plans";
+import { PLAN_PRICE_PKR, PLAN_LIMITS, limitLabel, PLAN_LABEL, PLAN_TIERS, FREE_MODE } from "@/server/plans";
 import { SITE, HOME, FEATURE_GROUPS, FAQS } from "@/content/site-content";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
 
@@ -47,7 +47,14 @@ export default async function HomePage() {
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
         description: SITE.description,
-        offers: { "@type": "Offer", price: "0", priceCurrency: "PKR", description: "Free 14-day trial, paid plans from Rs 2,500/month" },
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "PKR",
+          description: FREE_MODE
+            ? "Free — every feature included, no card required, no commission on sales"
+            : "Free 14-day trial, paid plans from Rs 2,500/month",
+        },
       },
     ],
   };
@@ -138,7 +145,9 @@ export default async function HomePage() {
                     <span>📦 <b className="text-white">{n.orders}</b> orders placed</span>
                     <span>✅ <b className="text-white">{n.delivered}</b> parcels delivered</span>
                     <span>💚 <b className="text-white">Rs {n.gmv.toLocaleString()}</b> earned by sellers</span>
-                    <span>🏆 <b className="text-white">{n.foundingLeft}</b> founding spots left</span>
+                    {FREE_MODE
+                      ? <span>🎉 <b className="text-white">Free</b> while we test</span>
+                      : <span>🏆 <b className="text-white">{n.foundingLeft}</b> founding spots left</span>}
                   </div>
                 ))}
               </div>
@@ -242,6 +251,37 @@ export default async function HomePage() {
         </section>
 
         {/* ═══ PRICING ═══ */}
+        {FREE_MODE ? (
+          <section className="border-y border-line bg-surface">
+            <div className="mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
+              <p className="reveal inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                FREE WHILE WE TEST
+              </p>
+              <h2 className="reveal mt-3 text-2xl font-bold text-ink sm:text-3xl">
+                Right now, it costs nothing
+              </h2>
+              <p className="reveal mx-auto mt-3 max-w-md text-sm text-muted">
+                We&apos;re testing StoreLink with real Pakistani shops. Every feature, no limits,
+                no card — while we learn what sellers actually need.
+              </p>
+              <div className="reveal lift mx-auto mt-8 max-w-sm rounded-3xl border-2 border-primary bg-background p-7 shadow-lg">
+                <p className="text-4xl font-bold text-ink">Rs 0<span className="text-sm font-normal text-muted">/mo</span></p>
+                <ul className="mt-5 space-y-2 text-left text-sm text-muted">
+                  <li>✓ Unlimited products &amp; categories</li>
+                  <li>✓ Unlimited orders — no commission</li>
+                  <li>✓ COD orders + fake-order protection</li>
+                  <li>✓ Every feature included</li>
+                </ul>
+                <Link href="/signup?src=home-free" className="mt-6 block rounded-xl bg-primary py-3 text-center text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+                  Create your free shop
+                </Link>
+              </div>
+              <p className="reveal mt-6 text-center text-xs text-muted">
+                If we ever start charging, we&apos;ll tell you first · <Link href="/pricing" className="font-medium text-primary hover:underline">More details →</Link>
+              </p>
+            </div>
+          </section>
+        ) : (
         <section className="border-y border-line bg-surface">
           <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
             <h2 className="reveal text-center text-2xl font-bold text-ink sm:text-3xl">Simple, honest pricing</h2>
@@ -269,9 +309,10 @@ export default async function HomePage() {
             </p>
           </div>
         </section>
+        )}
 
         {/* ═══ FOUNDING OFFER ═══ */}
-        {n.foundingLeft > 0 && (
+        {!FREE_MODE && n.foundingLeft > 0 && (
           <section className="mx-auto max-w-3xl px-4 pt-16 sm:px-6">
             <div className="reveal rounded-3xl border-2 border-[#E7C98A] bg-[#FBF7EC] p-7 text-center">
               <p className="text-lg font-bold text-ink">{HOME.founding.title}</p>

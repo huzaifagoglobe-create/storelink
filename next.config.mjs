@@ -42,7 +42,16 @@ const nextConfig = {
   },
   serverExternalPackages: ["sharp"],
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      // Public pages: cached/ISR-friendly policy (keeps 'unsafe-inline' — see note above).
+      // /dashboard and /admin are deliberately EXCLUDED: src/middleware.ts gives
+      // those a strict nonce-based CSP, which it can afford because they already
+      // render per-request. Two CSP headers on one response would both be
+      // enforced and fight each other, so only one source sets it per path.
+      { source: "/((?!dashboard|admin).*)", headers: securityHeaders },
+      // Non-CSP hardening still applies everywhere (middleware re-sets these too).
+      { source: "/:path*", headers: securityHeaders.filter((h) => h.key !== "Content-Security-Policy") },
+    ];
   },
 };
 
