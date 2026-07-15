@@ -1,0 +1,14 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="StoreLink logo">
+  <defs>
+    <linearGradient id="g" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2EAF7D"/><stop offset="1" stop-color="#1D7A9C"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#g)"/>
+  <!-- shopping bag body -->
+  <path d="M20 26h24l-2.4 20a4 4 0 0 1-4 3.6H26.4a4 4 0 0 1-4-3.6L20 26z" fill="white" fill-opacity="0.94"/>
+  <!-- bag handles that form a chain LINK -->
+  <path d="M25 26v-4a7 7 0 0 1 14 0v4" stroke="white" stroke-width="3.4" stroke-linecap="round" fill="none"/>
+  <path d="M27.5 35.5a4.6 4.6 0 0 1 6.5 0l1 1" stroke="url(#g)" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+  <path d="M36.5 42.5a4.6 4.6 0 0 1-6.5 0l-1-1" stroke="url(#g)" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+</svg>

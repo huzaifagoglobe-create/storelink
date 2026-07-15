@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: #F6F5F2; /* warm linen */
+  color: #221E1B; /* rich ink */
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Visible keyboard focus on every interactive element (accessibility). */
+:focus-visible {
+  outline: 2px solid #8E2C5A;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Rich-text product description (editor + storefront) */
+.rte h3 { font-size: 1rem; font-weight: 600; margin: 0.75rem 0 0.25rem; }
+.rte p { margin: 0.4rem 0; }
+.rte ul { list-style: disc; padding-left: 1.25rem; margin: 0.4rem 0; }
+.rte ol { list-style: decimal; padding-left: 1.25rem; margin: 0.4rem 0; }
+.rte li { margin: 0.15rem 0; }
+.rte a { color: #8E2C5A; text-decoration: underline; }
+.rte strong, .rte b { font-weight: 600; }
+.rte em, .rte i { font-style: italic; }
+.rte:empty::before { content: attr(data-placeholder); color: #77716B; pointer-events: none; }
+
+/* Urdu mode: Nastaliq script + right-to-left readability */
+[lang="ur"] {
+  font-family: "Noto Nastaliq Urdu", system-ui, sans-serif;
+  line-height: 2;
+}
+
+/* Legal pages (Privacy, Terms) */
+.legal section { margin-bottom: 0.5rem; }
+.legal h2 { font-size: 1.05rem; font-weight: 600; margin: 1.75rem 0 0.5rem; color: #221E1B; }
+.legal p { margin: 0.5rem 0; font-size: 0.9rem; line-height: 1.7; color: #3A3531; }
+.legal ul { list-style: disc; padding-left: 1.25rem; margin: 0.5rem 0; }
+.legal li { margin: 0.3rem 0; font-size: 0.9rem; line-height: 1.7; color: #3A3531; }
+.legal a { color: #8E2C5A; text-decoration: underline; }
+
+
+/* Sanitized seller rich-text (product descriptions) */
+.prose-storefront h3 { font-weight: 600; font-size: 1rem; margin: 0.5rem 0 0.25rem; }
+.prose-storefront p { margin: 0.4rem 0; }
+.prose-storefront ul, .prose-storefront ol { margin: 0.4rem 0; padding-left: 1.25rem; }
+.prose-storefront ul { list-style: disc; }
+.prose-storefront ol { list-style: decimal; }
+.prose-storefront li { margin: 0.15rem 0; }
+.prose-storefront a { color: #2563eb; text-decoration: underline; }
+.prose-storefront b, .prose-storefront strong { font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════════════════
+   WEBSITE DESIGN SYSTEM — futuristic-calm
+   Deep forest heroes, mint→teal auras, glass cards, gentle motion.
+   Every animation respects prefers-reduced-motion (rule above).
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Soft animated aurora blobs for hero backgrounds */
+.aurora {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: aurora-drift 14s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(36px, -28px, 0) scale(1.12); }
+}
+
+/* Glassmorphism card (on dark hero) */
+.glass {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* Gradient text */
+.grad-text {
+  background: linear-gradient(92deg, #7fe0b2 0%, #4cc39a 45%, #59b7d4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Scroll-reveal: elements start hidden, .in fades them up (added by JS) */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.in { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* Floating micro-animation for hero mock elements */
+.float-slow { animation: float-y 6s ease-in-out infinite; }
+.float-slower { animation: float-y 8s ease-in-out infinite reverse; }
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Slide-in ticker for the hero order notifications */
+.order-pop { animation: order-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes order-pop {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Gentle pulsing glow ring (live dots, demo button) */
+.pulse-dot { position: relative; }
+.pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 2px solid #4cc39a;
+  animation: pulse-ring 2.2s ease-out infinite;
+}
+@keyframes pulse-ring {
+  from { opacity: 0.8; transform: scale(0.8); }
+  to { opacity: 0; transform: scale(1.5); }
+}
+
+/* Marquee for the live-stats strip */
+.marquee-track { display: flex; gap: 3rem; animation: marquee 26s linear infinite; width: max-content; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+/* Section link cards hover lift */
+.lift { transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+.lift:hover { transform: translateY(-4px); box-shadow: 0 14px 34px -14px rgba(18, 40, 30, 0.25); }
