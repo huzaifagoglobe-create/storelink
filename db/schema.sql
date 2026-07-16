@@ -59,6 +59,7 @@ create table if not exists shops (
   updated_at         timestamptz not null default now()
 );
 
+drop trigger if exists trg_shops_updated_at on shops;
 create trigger trg_shops_updated_at
   before update on shops
   for each row execute function set_updated_at();
@@ -79,6 +80,7 @@ create table if not exists products (
   updated_at        timestamptz not null default now()
 );
 
+drop trigger if exists trg_products_updated_at on products;
 create trigger trg_products_updated_at
   before update on products
   for each row execute function set_updated_at();
@@ -103,6 +105,7 @@ create table if not exists orders (
   updated_at      timestamptz not null default now()
 );
 
+drop trigger if exists trg_orders_updated_at on orders;
 create trigger trg_orders_updated_at
   before update on orders
   for each row execute function set_updated_at();
@@ -153,21 +156,27 @@ alter table order_items   enable row level security;
 alter table subscriptions enable row level security;
 
 -- profiles: a user can see/update only their own profile
+drop policy if exists "own profile - select" on profiles;
 create policy "own profile - select" on profiles for select using (auth.uid() = id);
+drop policy if exists "own profile - update" on profiles;
 create policy "own profile - update" on profiles for update using (auth.uid() = id);
 
 -- shops: anyone can read ACTIVE shops; owners manage their own
+drop policy if exists "public read active shops" on shops;
 create policy "public read active shops" on shops
   for select using (is_active = true);
+drop policy if exists "owner manages shop" on shops;
 create policy "owner manages shop" on shops
   for all using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
 
 -- products: anyone can read ACTIVE products of ACTIVE shops; owners manage theirs
+drop policy if exists "public read active products" on products;
 create policy "public read active products" on products
   for select using (
     is_active = true
     and exists (select 1 from shops s where s.id = products.shop_id and s.is_active = true)
   );
+drop policy if exists "owner manages products" on products;
 create policy "owner manages products" on products
   for all using (
     exists (select 1 from shops s where s.id = products.shop_id and s.owner_id = auth.uid())
@@ -176,20 +185,25 @@ create policy "owner manages products" on products
   );
 
 -- orders: a buyer (anon) may CREATE an order; only the shop owner may read them
+drop policy if exists "anyone can place an order" on orders;
 create policy "anyone can place an order" on orders
   for insert with check (true);
+drop policy if exists "owner reads shop orders" on orders;
 create policy "owner reads shop orders" on orders
   for select using (
     exists (select 1 from shops s where s.id = orders.shop_id and s.owner_id = auth.uid())
   );
+drop policy if exists "owner updates shop orders" on orders;
 create policy "owner updates shop orders" on orders
   for update using (
     exists (select 1 from shops s where s.id = orders.shop_id and s.owner_id = auth.uid())
   );
 
 -- order_items: insert allowed with the order; readable by the shop owner
+drop policy if exists "anyone can add order items" on order_items;
 create policy "anyone can add order items" on order_items
   for insert with check (true);
+drop policy if exists "owner reads order items" on order_items;
 create policy "owner reads order items" on order_items
   for select using (
     exists (
@@ -199,6 +213,7 @@ create policy "owner reads order items" on order_items
   );
 
 -- subscriptions: owner reads their own (admin handled via service-role server-side)
+drop policy if exists "owner reads subscription" on subscriptions;
 create policy "owner reads subscription" on subscriptions
   for select using (
     exists (select 1 from shops s where s.id = subscriptions.shop_id and s.owner_id = auth.uid())
@@ -431,9 +446,6 @@ create table if not exists abandoned_carts (
 alter table abandoned_carts enable row level security;
 create index if not exists idx_abandoned_shop on abandoned_carts (shop_id, created_at desc);
 
--- Review photos: buyers can attach up to 3 image URLs (from our upload endpoint).
-alter table reviews add column if not exists photos jsonb not null default '[]'::jsonb;
-
 -- Storefront customization
 alter table shops add column if not exists theme_color text;
 alter table shops add column if not exists banner_style text not null default 'none';
@@ -455,6 +467,11 @@ create table if not exists reviews (
   created_at timestamptz not null default now()
 );
 create index if not exists reviews_product_idx on reviews(product_id);
+
+-- Review photos: buyers can attach up to 3 image URLs (from our upload endpoint).
+-- (Kept as an ALTER so existing databases pick the column up on re-run; it must
+--  come AFTER the create table above, or a fresh database has nothing to alter.)
+alter table reviews add column if not exists photos jsonb not null default '[]'::jsonb;
 
 -- Product variant options
 alter table products add column if not exists options jsonb not null default '[]'::jsonb;
