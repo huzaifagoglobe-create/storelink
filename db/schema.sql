@@ -9,9 +9,19 @@
 -- ============================================================================
 
 -- ---------- Enums -----------------------------------------------------------
+-- Plan names must match PLAN_TIERS in src/server/plans.ts exactly. They were
+-- renamed (starter/growth -> basic/pro/premium) and the enum was left behind,
+-- so every admin plan change failed with "invalid input value for enum".
 do $$ begin
-  create type plan_tier      as enum ('trial', 'starter', 'growth');
+  create type plan_tier      as enum ('trial', 'basic', 'pro', 'premium');
 exception when duplicate_object then null; end $$;
+
+-- For databases created before that rename: add the current values. (Old
+-- 'starter'/'growth' values stay behind harmlessly — Postgres cannot drop enum
+-- values, and nothing uses them.)
+alter type plan_tier add value if not exists 'basic';
+alter type plan_tier add value if not exists 'pro';
+alter type plan_tier add value if not exists 'premium';
 
 do $$ begin
   create type order_status   as enum ('new', 'confirmed', 'delivered', 'cancelled');
@@ -229,7 +239,9 @@ create table if not exists app_users (
   password_hash text not null,
   full_name     text,
   shop_id       uuid references shops(id) on delete set null,
-  role          text not null default 'seller' check (role in ('seller','admin')),
+  -- 'staff' is used by the Team feature (owner adds up to 5 staff logins).
+  -- It was missing from this check, so addStaffAction() failed on a real database.
+  role          text not null default 'seller' check (role in ('seller','staff','admin')),
   created_at    timestamptz not null default now()
 );
 create unique index if not exists idx_app_users_email on app_users (lower(email));
@@ -307,6 +319,8 @@ create table if not exists stories (
 );
 
 -- Acquisition machine: where signups come from + seller-refers-seller.
+-- Shop street address (shown on the storefront / used in LocalBusiness schema).
+alter table shops add column if not exists address text;
 alter table shops add column if not exists signup_source text;      -- ?src= tag (tiktok, storefront…)
 alter table shops add column if not exists promo_code text;         -- promo code used at signup
 alter table shops add column if not exists referred_by_shop text;   -- slug of the referring shop
@@ -475,6 +489,9 @@ alter table reviews add column if not exists photos jsonb not null default '[]':
 
 -- Product variant options
 alter table products add column if not exists options jsonb not null default '[]'::jsonb;
+
+-- Product tag/badge (e.g. "New", "Sale") shown on the product card.
+alter table products add column if not exists tag text;
 alter table order_items add column if not exists variant text;
 
 -- ---------- password_resets (forgot-PIN flow) -------------------------------
@@ -616,6 +633,12 @@ $$;
 
 -- ---------- subscription / manual billing -----------------------------------
 alter table shops add column if not exists subscription_status text not null default 'active';
+
+-- Widen app_users.role for databases created before 'staff' was allowed.
+do $$ begin
+  alter table app_users drop constraint if exists app_users_role_check;
+  alter table app_users add constraint app_users_role_check check (role in ('seller','staff','admin'));
+exception when undefined_table then null; end $$;
 alter table shops add column if not exists plan_expires_at timestamptz;
 
 create table if not exists subscription_payments (
