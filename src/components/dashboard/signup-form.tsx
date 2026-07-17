@@ -4,6 +4,7 @@
 import { useEffect, useState, useActionState } from "react";
 import { signUpAction, type AuthState } from "@/server/actions/auth-actions";
 import { Field, inputClass, FormError } from "./field";
+import { CredentialFields } from "./credential-fields";
 import { SubmitButton } from "./submit-button";
 
 const INDUSTRIES = [
@@ -28,25 +29,56 @@ type SlugStatus = "idle" | "short" | "checking" | "available" | "taken";
 export function SignupForm() {
   const [state, formAction] = useActionState<AuthState, FormData>(signUpAction, {});
 
-  const [shopName, setShopName] = useState("");
-  const [slug, setSlug] = useState("");
+  // React resets uncontrolled inputs after a failed form action, so a single
+  // weak PIN used to wipe the whole form — name, email, WhatsApp, everything.
+  // Every field is controlled, and seeded from what the server handed back, so
+  // nothing the seller typed is ever lost.
+  const v = state.values;
+  const [shopName, setShopName] = useState(v?.shopName ?? "");
+  const [slug, setSlug] = useState(v?.slug ?? "");
   const [slugEdited, setSlugEdited] = useState(false);
   const [status, setStatus] = useState<SlugStatus>("idle");
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [industry, setIndustry] = useState("");
+  const [industry, setIndustry] = useState(v?.industry ?? "");
+  const [industryOther, setIndustryOther] = useState(v?.industryOther ?? "");
+  const [fullName, setFullName] = useState(v?.fullName ?? "");
+  const [email, setEmail] = useState(v?.email ?? "");
+  const [whatsapp, setWhatsapp] = useState(v?.whatsapp ?? "");
+  const [promo, setPromo] = useState(v?.promo ?? "");
   const [attr, setAttr] = useState({ src: "", promo: "", rf: "" });
   useEffect(() => {
     try {
       const q = new URLSearchParams(window.location.search);
+      const p = q.get("promo") || "";
       setAttr({
         src: q.get("src") || localStorage.getItem("wsb-src") || "",
-        promo: q.get("promo") || "",
+        promo: p,
         rf: q.get("rf") || localStorage.getItem("wsb-rf") || "",
       });
+      if (p) setPromo((cur) => cur || p);
     } catch {
       /* ignore */
     }
   }, []);
+
+  // React resets the form's DOM after a form action. Controlled text inputs get
+  // re-synced, but a <select> does not — React's virtual DOM thinks the value
+  // never changed, so the DOM stays blank while state still says "Fashion".
+  // Pushing the server's echoed values back into state after every failed
+  // submit re-applies all of them for certain.
+  useEffect(() => {
+    const vv = state.values;
+    if (!vv) return;
+    setShopName(vv.shopName ?? "");
+    setSlug(vv.slug ?? "");
+    setSlugEdited(true); // it came back from the server; don't auto-overwrite it
+    setIndustry(vv.industry ?? "");
+    setIndustryOther(vv.industryOther ?? "");
+    setFullName(vv.fullName ?? "");
+    setEmail(vv.email ?? "");
+    setWhatsapp(vv.whatsapp ?? "");
+    setPromo(vv.promo ?? "");
+  }, [state]);
 
   function onShopName(v: string) {
     setShopName(v);
@@ -164,30 +196,30 @@ export function SignupForm() {
           ))}
         </select>
         {industry === "Other" && (
-          <input name="industryOther" className={`${inputClass} mt-2`} placeholder="Type your industry" autoFocus />
+          <input
+            name="industryOther"
+            value={industryOther}
+            onChange={(e) => setIndustryOther(e.target.value)}
+            className={`${inputClass} mt-2`}
+            placeholder="Type your industry"
+            autoFocus
+          />
         )}
       </div>
 
       <div className="h-px bg-line" />
 
       <Field label="Your name" htmlFor="fullName" hint="Optional">
-        <input id="fullName" name="fullName" className={inputClass} placeholder="Your name" autoComplete="name" />
+        <input id="fullName" name="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} className={inputClass} placeholder="Your name" autoComplete="name" />
       </Field>
       <Field label="Email" htmlFor="email">
-        <input id="email" name="email" type="email" autoComplete="email" className={inputClass} placeholder="you@example.com" />
+        <input id="email" name="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className={inputClass} placeholder="you@example.com" />
       </Field>
       <Field label="WhatsApp number" htmlFor="whatsapp" hint="Where you'll receive orders">
-        <input id="whatsapp" name="whatsapp" inputMode="tel" autoComplete="tel" className={inputClass} placeholder="03001234567" />
+        <input id="whatsapp" name="whatsapp" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} inputMode="tel" autoComplete="tel" className={inputClass} placeholder="03001234567" />
       </Field>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Create a PIN" htmlFor="pin" hint="4–6 digits">
-          <input id="pin" name="pin" type="password" inputMode="numeric" pattern="\d*" maxLength={6} autoComplete="new-password" className={inputClass} placeholder="••••" />
-        </Field>
-        <Field label="Confirm PIN" htmlFor="confirmPin">
-          <input id="confirmPin" name="confirmPin" type="password" inputMode="numeric" pattern="\d*" maxLength={6} autoComplete="new-password" className={inputClass} placeholder="••••" />
-        </Field>
-      </div>
+      <CredentialFields defaultKind={v?.credentialKind ?? "pin"} labelNew="Create a PIN" />
 
       <input type="hidden" name="src" value={attr.src} />
       <input type="hidden" name="rf" value={attr.rf} />
@@ -196,7 +228,8 @@ export function SignupForm() {
         <input
           id="promo"
           name="promo"
-          defaultValue={attr.promo}
+          value={promo}
+          onChange={(e) => setPromo(e.target.value)}
           className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none focus:border-primary"
           placeholder="Have a code? Longer free trial"
         />

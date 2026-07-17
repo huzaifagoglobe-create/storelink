@@ -128,7 +128,10 @@ export function StorefrontForm({ shop }: { shop: Shop }) {
         </div>
 
         {/* ---------- Live preview (sticky on desktop) ---------- */}
-        <aside className="lg:sticky lg:top-4 lg:self-start">
+        {/* min-w-0: grid children default to min-width:auto, so without this the
+            1100px-wide desktop preview stretches this column — and the whole
+            page — far past the screen on a phone. */}
+        <aside className="min-w-0 lg:sticky lg:top-4 lg:self-start">
           <StorefrontLivePreview slug={shop.slug} template={template} />
         </aside>
       </div>

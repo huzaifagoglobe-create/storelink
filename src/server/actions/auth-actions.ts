@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { rateLimitDb, ipFromForwarded } from "@/lib/rate-limit";
 import { findUserForLogin, createUser, setUserPassword } from "../auth/user-service";
 import { verifyPassword } from "../auth/password";
-import { weakPinError } from "../auth/pin-policy";
+import { credentialError, PASSWORD_MAX, type CredentialKind } from "../auth/credential-policy";
 import { setSessionCookie, clearSessionCookie } from "../auth/session";
 import { createShop, isSlugTaken, deleteShop, updateShop, getShopBySlug } from "../services/shop-service";
 import { redeemPromoCode } from "../services/growth-services";
@@ -21,6 +21,22 @@ export interface AuthState {
   error?: string;
   sent?: boolean;
   done?: boolean;
+  /**
+   * What the seller typed. Returned on EVERY failure so the form can put it
+   * straight back. Losing a filled-in form because of one weak PIN is the
+   * fastest way to lose a signup. The credential itself is never echoed.
+   */
+  values?: {
+    shopName?: string;
+    slug?: string;
+    industry?: string;
+    industryOther?: string;
+    fullName?: string;
+    email?: string;
+    whatsapp?: string;
+    promo?: string;
+    credentialKind?: CredentialKind;
+  };
 }
 
 async function reqIp(): Promise<string> {
@@ -28,12 +44,10 @@ async function reqIp(): Promise<string> {
   return ipFromForwarded(h.get("x-forwarded-for"), h.get("x-real-ip"));
 }
 
-// PIN is 4–6 digits. (Short, but easy; paired with server-side hashing.)
-const PIN_RE = /^\d{4,6}$/;
-
 export async function signInAction(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email = str(formData.get("email"), 200);
-  const pin = str(formData.get("pin"), 6);
+  // Not capped at 6: a seller may have chosen a password, not a PIN.
+  const pin = str(formData.get("pin"), PASSWORD_MAX);
   if (!email || !pin) return { error: "Please enter your email and PIN." };
 
   // Brute-force protection: cap attempts per IP and per account.
@@ -66,34 +80,48 @@ export async function signUpAction(_prev: AuthState, formData: FormData): Promis
   const shopName = str(formData.get("shopName"), 80);
   const slug = normalizeSlug(str(formData.get("slug"), 60));
   const whatsapp = normalizePhone(str(formData.get("whatsapp"), 40));
-  const pin = str(formData.get("pin"), 6);
-  const confirmPin = str(formData.get("confirmPin"), 6);
+  const kind: CredentialKind = formData.get("credentialKind") === "password" ? "password" : "pin";
+  const cap = kind === "password" ? PASSWORD_MAX : 6;
+  const pin = str(formData.get("pin"), cap);
+  const confirmPin = str(formData.get("confirmPin"), cap);
 
   const industryChoice = str(formData.get("industry"), 60);
   const industryOther = str(formData.get("industryOther"), 60);
   const industry =
     industryChoice === "Other" ? industryOther || null : industryChoice || null;
 
+  // Everything the seller typed, handed back with any error so the form can
+  // refill itself. Never includes the PIN/password.
+  const values: AuthState["values"] = {
+    shopName, slug, industry: industryChoice, industryOther,
+    fullName: fullName ?? "", email, whatsapp: str(formData.get("whatsapp"), 40),
+    promo: str(formData.get("promo"), 40), credentialKind: kind,
+  };
+  const fail = (error: string): AuthState => ({ error, values });
+
   if (!email || !shopName || !slug || !whatsapp) {
-    return { error: "Please fill in your shop name, link, WhatsApp number and email." };
+    return fail("Please fill in your shop name, link, WhatsApp number and email.");
   }
   if (slug.length < 3) {
-    return { error: "Your shop link must be at least 3 characters (letters, numbers, dashes)." };
+    return fail("Your shop link must be at least 3 characters (letters, numbers, dashes).");
   }
-  if (whatsapp.length < 8) return { error: "Please enter a valid WhatsApp number." };
-  if (!PIN_RE.test(pin)) return { error: "Your PIN must be 4 to 6 digits." };
-  const weak = weakPinError(pin);
-  if (weak) return { error: weak };
-  if (pin !== confirmPin) return { error: "The two PINs don't match. Please re-enter them." };
+  if (whatsapp.length < 8) return fail("Please enter a valid WhatsApp number.");
+  const credErr = credentialError(pin, kind);
+  if (credErr) return fail(credErr);
+  if (pin !== confirmPin) {
+    return fail(kind === "pin"
+      ? "The two PINs don't match. Please re-enter them."
+      : "The two passwords don't match. Please re-enter them.");
+  }
   if (industryChoice === "Other" && !industryOther) {
-    return { error: "Please type your industry." };
+    return fail("Please type your industry.");
   }
 
   if (await findUserForLogin(email)) {
-    return { error: "An account with this email already exists." };
+    return fail("An account with this email already exists.");
   }
   if (await isSlugTaken(slug)) {
-    return { error: "That shop link is already taken. Please pick another." };
+    return fail("That shop link is already taken. Please pick another.");
   }
 
   // Acquisition tracking: ?src / ?promo / ?rf captured by the signup page.
@@ -193,16 +221,16 @@ export async function resetPasswordAction(
   formData: FormData
 ): Promise<AuthState> {
   const token = str(formData.get("token"), 200);
-  const pin = str(formData.get("pin"), 6);
+  const kind: CredentialKind = formData.get("credentialKind") === "password" ? "password" : "pin";
+  const pin = str(formData.get("pin"), kind === "password" ? PASSWORD_MAX : 6);
   const confirmPin = str(formData.get("confirmPin"), 6);
 
   if (!(await rateLimitDb(`pwreset-confirm-ip:${await reqIp()}`, 12, 15 * 60))) {
     return { error: "Too many attempts. Please wait a few minutes and try again." };
   }
   if (!token) return { error: "This reset link is invalid. Please request a new one." };
-  if (!PIN_RE.test(pin)) return { error: "Your new PIN must be 4 to 6 digits." };
-  const weakNew = weakPinError(pin);
-  if (weakNew) return { error: weakNew };
+  const newErr = credentialError(pin, kind);
+  if (newErr) return { error: newErr };
   if (pin !== confirmPin) return { error: "The two PINs don't match. Please re-enter them." };
 
   const userId = await consumePasswordReset(token);

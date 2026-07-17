@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { createHmac, timingSafeEqual } from "crypto";
 
@@ -75,7 +76,8 @@ export async function getSessionUid(): Promise<string | null> {
 }
 
 /** Read the full session metadata (uid + issued-at), or null. */
-export async function getSession(): Promise<SessionMeta | null> {
+/** Cached per request: the cookie is parsed and verified once, not per caller. */
+export const getSession = cache(async function getSession(): Promise<SessionMeta | null> {
   const c = (await cookies()).get(COOKIE);
   return c ? readToken(c.value) : null;
-}
+});

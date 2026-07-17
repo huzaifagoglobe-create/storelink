@@ -27,7 +27,7 @@ export function StorefrontLivePreview({ slug, template }: { slug: string; templa
   useEffect(() => {
     const el = boxRef.current;
     if (!el) return;
-    const update = () => setPanelW(el.clientWidth);
+    const update = () => setPanelW(el.clientWidth || el.getBoundingClientRect().width || 320);
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
@@ -68,7 +68,7 @@ export function StorefrontLivePreview({ slug, template }: { slug: string; templa
 
       <div
         ref={boxRef}
-        className="relative overflow-hidden rounded-xl border border-line bg-white"
+        className="relative w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-line bg-white"
         style={{ height: H }}
       >
         {loading && (
@@ -77,14 +77,20 @@ export function StorefrontLivePreview({ slug, template }: { slug: string; templa
           </div>
         )}
         {device === "desktop" ? (
-          <div className="origin-top-left" style={{ transform: `scale(${scale})` }}>
+          // absolute: a CSS transform shrinks how this LOOKS but not the space it
+          // takes up, so in normal flow the 1100px iframe still pushes the page
+          // sideways. Taking it out of flow means it can never affect layout.
+          <div
+            className="absolute left-0 top-0 origin-top-left"
+            style={{ transform: `scale(${scale})`, width: DESKTOP_W }}
+          >
             <iframe
               key="desktop"
               src={src}
               title="Storefront preview"
               onLoad={() => setLoading(false)}
               className="border-0"
-              style={{ width: DESKTOP_W, height: H / scale }}
+              style={{ width: DESKTOP_W, height: Math.round(H / scale) }}
             />
           </div>
         ) : (

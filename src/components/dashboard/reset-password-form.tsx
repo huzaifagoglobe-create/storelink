@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { resetPasswordAction, type AuthState } from "@/server/actions/auth-actions";
-import { Field, inputClass, FormError } from "./field";
+import { Field, FormError } from "./field";
+import { CredentialFields } from "./credential-fields";
 import { SubmitButton } from "./submit-button";
 
 export function ResetPasswordForm({ token }: { token: string }) {
@@ -13,8 +14,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
     return (
       <div className="space-y-4">
         <div className="rounded-xl bg-[#EAF3EE] p-4 text-sm">
-          <p className="font-medium text-ink">PIN updated</p>
-          <p className="mt-1 text-muted">Your new PIN is ready. You can sign in now.</p>
+          <p className="font-medium text-ink">Sign-in updated</p>
+          <p className="mt-1 text-muted">Your new PIN or password is ready. You can sign in now.</p>
         </div>
         <Link
           href="/login"
@@ -30,13 +31,10 @@ export function ResetPasswordForm({ token }: { token: string }) {
     <form action={formAction} className="space-y-4">
       <FormError message={state.error} />
       <input type="hidden" name="token" value={token} />
-      <Field label="New PIN" htmlFor="pin" hint="4–6 digits">
-        <input id="pin" name="pin" type="password" inputMode="numeric" pattern="\d*" maxLength={6} autoComplete="new-password" className={inputClass} placeholder="••••" />
-      </Field>
-      <Field label="Confirm new PIN" htmlFor="confirmPin">
-        <input id="confirmPin" name="confirmPin" type="password" inputMode="numeric" pattern="\d*" maxLength={6} autoComplete="new-password" className={inputClass} placeholder="••••" />
-      </Field>
-      <SubmitButton className="w-full" pendingText="Updating…">Update PIN</SubmitButton>
+      {/* Same chooser as signup — a reset is also a chance to move from a PIN
+          to a password. */}
+      <CredentialFields labelNew="New PIN" autoComplete="new-password" />
+      <SubmitButton className="w-full" pendingText="Updating…">Update sign-in</SubmitButton>
     </form>
   );
 }
