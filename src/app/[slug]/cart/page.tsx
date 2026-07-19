@@ -19,7 +19,10 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="py-16 text-center">
-        <p className="text-sm text-muted">{tr(lang, "cartEmpty")}</p>
+        {/* Every page needs exactly one h1 — including the empty state, which is
+            what a search engine (and a screen reader) lands on. */}
+        <h1 className="text-lg font-semibold text-ink">{tr(lang, "yourCart")}</h1>
+        <p className="mt-2 text-sm text-muted">{tr(lang, "cartEmpty")}</p>
         <Link
           href={`/${slug}`}
           className="mt-4 inline-flex rounded-xl border border-primary px-4 py-2.5 text-sm font-medium text-primary"

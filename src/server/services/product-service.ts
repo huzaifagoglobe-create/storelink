@@ -9,6 +9,7 @@ function rowToProduct(r: any): Product {
     shopId: r.shop_id,
     name: r.name,
     description: r.description,
+    longDescription: r.long_description ?? null,
     price: Number(r.price),
     compareAtPrice: r.compare_at_price === null ? null : Number(r.compare_at_price),
     costPrice: r.cost_price === null || r.cost_price === undefined ? null : Number(r.cost_price),
@@ -93,6 +94,7 @@ export async function createProduct(shopId: string, input: ProductInput): Promis
       shopId,
       name: input.name,
       description: input.description ?? null,
+      longDescription: input.longDescription ?? null,
       price: input.price,
       compareAtPrice: input.compareAtPrice ?? null,
       costPrice: input.costPrice ?? null,
@@ -118,6 +120,7 @@ export async function createProduct(shopId: string, input: ProductInput): Promis
       shop_id: shopId,
       name: input.name,
       description: input.description ?? null,
+      long_description: input.longDescription ?? null,
       price: input.price,
       compare_at_price: input.compareAtPrice ?? null,
       cost_price: input.costPrice ?? null,
@@ -152,6 +155,7 @@ export async function updateProduct(
     Object.assign(p, {
       name: patch.name ?? p.name,
       description: patch.description === undefined ? p.description : patch.description,
+      longDescription: patch.longDescription === undefined ? p.longDescription : patch.longDescription,
       price: patch.price ?? p.price,
       compareAtPrice:
         patch.compareAtPrice === undefined ? p.compareAtPrice : patch.compareAtPrice,
@@ -172,6 +176,7 @@ export async function updateProduct(
   const row: Record<string, unknown> = {};
   if (patch.name !== undefined) row.name = patch.name;
   if (patch.description !== undefined) row.description = patch.description;
+  if (patch.longDescription !== undefined) row.long_description = patch.longDescription;
   if (patch.price !== undefined) row.price = patch.price;
   if (patch.compareAtPrice !== undefined) row.compare_at_price = patch.compareAtPrice;
   if (patch.costPrice !== undefined) row.cost_price = patch.costPrice;

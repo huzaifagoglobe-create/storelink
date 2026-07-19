@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireSeller } from "../auth/current-seller";
+import { requireOwner } from "../auth/current-seller";
 import { requireAdmin } from "../auth/current-admin";
 import { submitVerification, reviewVerification } from "../services/verification-service";
 import { str } from "../validate";
@@ -16,7 +16,8 @@ export async function submitVerificationAction(
   _prev: VerifyState,
   formData: FormData
 ): Promise<VerifyState> {
-  const { shop } = await requireSeller();
+  // Owner-only: payout account + CNIC belong to the shop owner, never staff.
+  const { shop } = await requireOwner();
   const cnicDigits = str(formData.get("cnicNumber"), 20).replace(/\D/g, "");
   const payoutMethod = str(formData.get("payoutMethod"), 30);
   const payoutAccountName = str(formData.get("payoutAccountName"), 80);

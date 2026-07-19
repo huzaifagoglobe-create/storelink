@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentSeller } from "@/server/auth/current-seller";
 import { getCurrentAdmin } from "@/server/auth/current-admin";
 import { LoginForm } from "@/components/dashboard/login-form";
+import { isSupabaseConfigured } from "@/server/supabase/server";
 import { AuthAside } from "@/components/dashboard/auth-aside";
 
 export const metadata = { title: "Sign in" };
@@ -43,11 +44,17 @@ export default async function LoginPage() {
             <Link href="/signup" className="font-medium text-primary hover:underline">Create your shop</Link>
           </p>
 
-          <div className="mt-6 rounded-xl bg-[#EAF3EE] p-3 text-xs">
-            <p className="font-medium text-ink">Demo logins</p>
-            <p className="mt-0.5 text-muted">Seller — demo@shop.pk · PIN 1234</p>
-            <p className="mt-0.5 text-muted">Admin — admin@shop.pk · PIN 4321</p>
-          </div>
+          {/* Demo accounts only exist in demo mode (no database configured).
+              Once a real database is connected they do not exist at all, so
+              showing them would hand every visitor a set of admin-looking
+              credentials and advertise the admin panel for nothing. */}
+          {!isSupabaseConfigured() && (
+            <div className="mt-6 rounded-xl bg-[#EAF3EE] p-3 text-xs">
+              <p className="font-medium text-ink">Demo logins</p>
+              <p className="mt-0.5 text-muted">Seller — demo@shop.pk · PIN 1234</p>
+              <p className="mt-0.5 text-muted">Admin — admin@shop.pk · PIN 4321</p>
+            </div>
+          )}
         </div>
       </section>
     </main>

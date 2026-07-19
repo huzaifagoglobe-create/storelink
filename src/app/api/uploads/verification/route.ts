@@ -3,6 +3,7 @@ import { getCurrentSeller } from "@/server/auth/current-seller";
 import {
   saveVerificationDoc,
   MAX_UPLOAD_BYTES,
+  MAX_UPLOAD_MB,
   ALLOWED_TYPES,
 } from "@/server/services/upload-service";
 import { sniffImageType } from "@/server/image";
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Use a JPG, PNG, WEBP or GIF image." }, { status: 400 });
   }
   if (file.size > MAX_UPLOAD_BYTES) {
-    return NextResponse.json({ error: "Image must be under 4 MB." }, { status: 400 });
+    return NextResponse.json({ error: `Image must be under ${MAX_UPLOAD_MB} MB.` }, { status: 400 });
   }
 
   try {

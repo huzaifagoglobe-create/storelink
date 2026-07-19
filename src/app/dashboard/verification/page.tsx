@@ -1,5 +1,5 @@
 import { VerifiedBadgeKit } from "@/components/dashboard/verified-badge-kit";
-import { requireSeller } from "@/server/auth/current-seller";
+import { requireOwner } from "@/server/auth/current-seller";
 import { listShopOrders } from "@/server/services/order-service";
 import { listReviewsForShop, reviewSummary } from "@/server/services/review-service";
 import { computeTrust } from "@/server/trust";
@@ -16,7 +16,7 @@ const METHOD_LABEL: Record<string, string> = {
 };
 
 export default async function VerificationPage() {
-  const { shop } = await requireSeller();
+  const { shop } = await requireOwner(); // payout + CNIC: owner-only
   const [orders, reviews] = await Promise.all([
     listShopOrders(shop.id),
     listReviewsForShop(shop.id),

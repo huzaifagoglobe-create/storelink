@@ -60,6 +60,10 @@ export default async function DemoPage() {
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+        {/* The page's h1. Visually hidden because the mock dashboard below is
+            the point of the page, but a page with no h1 is invisible structure
+            to Google and to screen readers. */}
+        <h1 className="sr-only">StoreLink demo — a real seller dashboard</h1>
         {/* dashboard chrome */}
         <div className="overflow-hidden rounded-3xl border border-line bg-background shadow-2xl">
           {/* fake window bar */}

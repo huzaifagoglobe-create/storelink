@@ -19,6 +19,8 @@ export interface ProductState {
 function parseProduct(formData: FormData): { input?: ProductInput; error?: string } {
   const name = str(formData.get("name"), 120);
   const description = cleanRichText(optStr(formData.get("description"), 6000));
+  // Same sanitiser as the short one — it is seller-supplied HTML shown to buyers.
+  const longDescription = cleanRichText(optStr(formData.get("longDescription"), 20000));
   const price = num(formData.get("price"));
   const stock = Math.floor(num(formData.get("stock")));
   if (!name) return { error: "Product name is required." };
@@ -104,6 +106,7 @@ function parseProduct(formData: FormData): { input?: ProductInput; error?: strin
     input: {
       name,
       description,
+      longDescription,
       price,
       compareAtPrice,
       costPrice,

@@ -5,7 +5,12 @@ import { toWebp } from "../image";
 
 const BUCKET = "product-images";
 const DOCS_BUCKET = "verification-docs"; // PRIVATE — CNIC + selfie only
-export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024; // 4 MB
+// 10 MB. Phone cameras routinely produce 6–12 MB photos, and 4 MB was
+// rejecting ordinary pictures of ordinary products. This is only the INPUT
+// cap: every image is resized to 1600px and re-encoded to WebP before it is
+// stored, so a 10 MB photo lands at roughly 200 KB on disk.
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+export const MAX_UPLOAD_MB = Math.round(MAX_UPLOAD_BYTES / (1024 * 1024));
 export const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 // Demo-mode image store (in memory). Resets on server restart, like demo orders.

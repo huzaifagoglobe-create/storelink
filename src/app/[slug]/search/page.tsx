@@ -33,6 +33,9 @@ export default async function SearchPage({
 
   return (
     <div className="space-y-4">
+      <h1 className="text-lg font-semibold text-ink">
+        {q ? `Search: ${q}` : "Search"}
+      </h1>
       <form action={`/${shop.slug}/search`} className="flex gap-2">
         <input
           name="q"

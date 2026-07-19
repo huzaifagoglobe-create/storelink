@@ -1,6 +1,15 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 
-export default function NotFound() {
+// Rendered per-request rather than prerendered at build time.
+//
+// Why: /dashboard and /admin get a strict nonce-based CSP from middleware.ts.
+// A page baked at build time has no nonce in its <script> tags, so the browser
+// refused to run ANY of them and a mistyped dashboard URL loaded a dead page.
+// Reading headers() opts this route into dynamic rendering, so Next stamps the
+// per-request nonce onto its scripts and the page works everywhere.
+export default async function NotFound() {
+  await headers();
   return (
     <main className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center">
       <p className="text-5xl font-bold text-primary">404</p>

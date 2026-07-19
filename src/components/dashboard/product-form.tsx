@@ -28,6 +28,10 @@ export function ProductForm({
 }) {
   const [state, formAction] = useActionState<ProductState, FormData>(action, {});
   const [description, setDescription] = useState(product?.description ?? "");
+  const [longDescription, setLongDescription] = useState(product?.longDescription ?? "");
+  // Collapsed by default: most sellers only want the short pitch, and an empty
+  // giant box makes the form look like homework.
+  const [showLong, setShowLong] = useState(Boolean(product?.longDescription));
   const [rewriting, setRewriting] = useState(false);
   const [rewriteMsg, setRewriteMsg] = useState<string | null>(null);
   const currentCategory = product?.category ?? "";
@@ -105,6 +109,55 @@ export function ProductForm({
         />
         {rewriteMsg && <p className="mt-1 text-xs text-primary">{rewriteMsg}</p>}
       </Field>
+
+      {/* Optional long write-up. Kept out of the way until asked for. */}
+      <div className="rounded-xl border border-line bg-[#f7f9f7] p-3">
+        {!showLong ? (
+          <button
+            type="button"
+            onClick={() => setShowLong(true)}
+            className="flex w-full items-center justify-between gap-2 text-left"
+          >
+            <span>
+              <span className="block text-sm font-medium text-ink">+ Add a longer description</span>
+              <span className="mt-0.5 block text-xs text-muted">
+                Optional. More words on the page = more chances Google shows your product.
+              </span>
+            </span>
+            <span className="text-muted">▾</span>
+          </button>
+        ) : (
+          <>
+            <div className="mb-1.5 flex items-start justify-between gap-2">
+              <span>
+                <span className="block text-sm font-medium text-ink">Longer description (optional)</span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  Shows in its own tab on your product page. Write like you&apos;re talking to a customer:
+                  the fabric, the fit, how to wash it, why you love it. Google reads this.
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowLong(false)}
+                className="flex-none text-xs font-medium text-muted hover:text-ink"
+              >
+                Hide
+              </button>
+            </div>
+            <textarea
+              id="longDescription"
+              name="longDescription"
+              value={longDescription}
+              onChange={(e) => setLongDescription(e.target.value)}
+              rows={8}
+              maxLength={20000}
+              className={inputClass}
+              placeholder={"Tell the full story…\n\nFabric: premium lawn, soft and breathable.\nFit: unstitched, 3 pieces.\nCare: hand wash cold, dry in shade.\nWhy we love it: the print is block-printed by hand in Multan."}
+            />
+            <p className="mt-1 text-xs text-muted">{longDescription.length.toLocaleString()} / 20,000 characters</p>
+          </>
+        )}
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <Field label="Price (Rs)" htmlFor="price">

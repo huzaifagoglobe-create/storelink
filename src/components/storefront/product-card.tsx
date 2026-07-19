@@ -101,7 +101,7 @@ export async function ProductCard({
           {Wish}
           {outOfStock && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-              <span className="rounded-full bg-ink/80 px-3 py-1 text-xs font-medium text-white">{tr(lang, "outOfStock")}</span>
+              <span className="rounded-full bg-ink/80 px-3 py-1 text-xs font-medium text-white">{tr(lang, "soldOut")}</span>
             </div>
           )}
           <div className="absolute inset-x-0 bottom-0 p-3">
@@ -139,7 +139,7 @@ export async function ProductCard({
         {Wish}
         {outOfStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/55">
-            <span className="rounded-full bg-ink/80 px-3 py-1 text-xs font-medium text-white">{tr(lang, "outOfStock")}</span>
+            <span className="rounded-full bg-ink/80 px-3 py-1 text-xs font-medium text-white">{tr(lang, "soldOut")}</span>
           </div>
         )}
       </div>

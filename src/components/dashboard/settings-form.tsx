@@ -112,8 +112,7 @@ export function SettingsForm({ shop }: { shop: Shop }) {
         Shop is open (storefront visible to buyers)
       </label>
 
-      <div className="flex items-center gap-3">
-        <div className="rounded-2xl border border-line bg-[#f7f9f7] p-4">
+      <div className="rounded-2xl border border-line bg-[#f7f9f7] p-4">
         <p className="text-sm font-semibold text-ink">📈 Marketing tracking (optional)</p>
         <p className="mb-3 mt-1 text-xs text-muted">
           Running Facebook/Instagram or Google ads? Paste your IDs and every visit and order on your shop is measured —
@@ -145,7 +144,10 @@ export function SettingsForm({ shop }: { shop: Shop }) {
         </div>
       </div>
 
-      <SubmitButton pendingText="Saving…">Save changes</SubmitButton>
+      {/* This row wraps ONLY the button and its confirmation — it used to open
+          far above and swallow the two cards, laying them out side by side. */}
+      <div className="flex flex-wrap items-center gap-3">
+        <SubmitButton pendingText="Saving…">Save changes</SubmitButton>
         {state.ok && <span className="text-sm font-medium text-primary">Saved ✓</span>}
       </div>
     </form>

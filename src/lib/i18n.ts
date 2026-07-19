@@ -20,6 +20,9 @@ export const STRINGS = {
   freeDeliveryOver: { en: "Free delivery over", ur: "مفت ڈیلیوری اس سے زیادہ پر" },
   noProducts: { en: "No products yet.", ur: "ابھی کوئی پروڈکٹ نہیں۔" },
   outOfStock: { en: "Out of stock", ur: "اسٹاک ختم" },
+  // On a product card a sell-out is social proof, not an apology — it says
+  // other people wanted this. Kept short so it fits the badge.
+  soldOut: { en: "Sold out 🔥", ur: "بک گیا 🔥" },
   sale: { en: "Sale", ur: "سیل" },
   tagHot: { en: "Hot", ur: "مقبول" },
   tagBestseller: { en: "Best seller", ur: "سب سے زیادہ فروخت" },

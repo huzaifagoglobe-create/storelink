@@ -273,7 +273,19 @@ export function CheckoutClient({
     return <div className="py-16" aria-hidden />;
   }
   if (items.length === 0 && !submitting) {
-    return <div className="py-16 text-center text-sm text-muted">{tr(lang, "cartEmpty")}</div>;
+    // Was a dead end: a line of grey text and no way back to the shop.
+    return (
+      <div className="py-16 text-center">
+        <h1 className="text-lg font-semibold text-ink">{tr(lang, "checkout")}</h1>
+        <p className="mt-2 text-sm text-muted">{tr(lang, "cartEmpty")}</p>
+        <a
+          href={`/${slug}`}
+          className="mt-4 inline-flex rounded-xl border border-primary px-4 py-2.5 text-sm font-medium text-primary"
+        >
+          {tr(lang, "browseProducts")}
+        </a>
+      </div>
+    );
   }
 
   async function applyCode() {

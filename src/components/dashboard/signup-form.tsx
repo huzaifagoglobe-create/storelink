@@ -5,6 +5,7 @@ import { useEffect, useState, useActionState } from "react";
 import { signUpAction, type AuthState } from "@/server/actions/auth-actions";
 import { Field, inputClass, FormError } from "./field";
 import { CredentialFields } from "./credential-fields";
+import { FREE_MODE } from "@/server/plans";
 import { SubmitButton } from "./submit-button";
 
 const INDUSTRIES = [
@@ -223,15 +224,20 @@ export function SignupForm() {
 
       <input type="hidden" name="src" value={attr.src} />
       <input type="hidden" name="rf" value={attr.rf} />
+      {/* A promo code buys extra TRIAL days — meaningless while everything is
+          free. The field stays (it records which campaign brought the seller)
+          but must not promise a longer trial that doesn't exist. */}
       <div>
-        <label htmlFor="promo" className="block text-sm font-medium text-ink">Promo code (optional)</label>
+        <label htmlFor="promo" className="block text-sm font-medium text-ink">
+          {FREE_MODE ? "Referral or campaign code (optional)" : "Promo code (optional)"}
+        </label>
         <input
           id="promo"
           name="promo"
           value={promo}
           onChange={(e) => setPromo(e.target.value)}
           className="mt-1 w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none focus:border-primary"
-          placeholder="Have a code? Longer free trial"
+          placeholder={FREE_MODE ? "If someone gave you a code, enter it" : "Have a code? Longer free trial"}
         />
       </div>
 

@@ -492,6 +492,11 @@ alter table products add column if not exists options jsonb not null default '[]
 
 -- Product tag/badge (e.g. "New", "Sale") shown on the product card.
 alter table products add column if not exists tag text;
+
+-- Optional long description shown in its own tab on the product page.
+-- The short `description` above is the quick pitch; this is for sellers who
+-- want to write properly for Google (fabric, care, sizing, story…).
+alter table products add column if not exists long_description text;
 alter table order_items add column if not exists variant text;
 
 -- ---------- password_resets (forgot-PIN flow) -------------------------------

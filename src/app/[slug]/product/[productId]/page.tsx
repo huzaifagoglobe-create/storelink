@@ -10,11 +10,13 @@ import { AddToCart } from "@/components/storefront/add-to-cart";
 import { WishlistButton } from "@/components/storefront/wishlist-button";
 import { ViewBeacon } from "@/components/storefront/view-beacon";
 import { NotifyMe } from "@/components/storefront/notify-me";
+import { OutOfStockPanel } from "@/components/storefront/out-of-stock-panel";
 import { DropCountdown } from "@/components/storefront/drop-countdown";
 import { SizeChartButton } from "@/components/storefront/size-chart-button";
 import { productSoldCount } from "@/server/services/order-service";
 import { ShopUnavailable } from "@/components/storefront/shop-unavailable";
 import { shopHasAccess, effectiveSubscriptionStatus } from "@/server/billing";
+import { ProductDescriptionTabs } from "@/components/storefront/product-description-tabs";
 import { ProductGallery } from "@/components/storefront/product-gallery";
 import { ReviewForm } from "@/components/storefront/review-form";
 import {
@@ -37,7 +39,12 @@ export async function generateMetadata({
   if (!shop) return {};
   const product = await getProductById(shop.id, params.productId);
   if (!product) return {};
-  const plain = (product.description ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  // Both descriptions feed search: the long one exists precisely so sellers who
+  // write more get found more. Short first (it's the pitch), long as backup.
+  const stripHtml = (h: string) => h.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const plain = [stripHtml(product.description ?? ""), stripHtml(product.longDescription ?? "")]
+    .filter(Boolean)
+    .join(" ");
   const description =
     plain.slice(0, 160) ||
     `${product.name} from ${shop.name}. Order on WhatsApp with cash on delivery.`;
@@ -95,7 +102,10 @@ export default async function ProductPage({
   const TAG_LABEL: Record<string, string> = { hot: "Hot", bestseller: "Best seller", new: "New" };
 
   const canonicalUrl = `${SITE_URL}/${shop.slug}/product/${product.id}`;
-  const plainDesc = (product.description ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const stripTags = (h: string) => h.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const plainDesc = [stripTags(product.description ?? ""), stripTags(product.longDescription ?? "")]
+    .filter(Boolean)
+    .join(" ");
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -213,12 +223,10 @@ export default async function ProductPage({
             </div>
           </div>
 
-          {product.description && (
-            <div
-              className="prose-storefront text-sm leading-relaxed text-ink"
-              dangerouslySetInnerHTML={{ __html: product.description }}
-            />
-          )}
+          <ProductDescriptionTabs
+            description={product.description}
+            longDescription={product.longDescription}
+          />
 
           {product.videoUrl && ytId && (
             <div className="overflow-hidden rounded-2xl border border-line">
@@ -258,7 +266,7 @@ export default async function ProductPage({
                 Nobody can order before the drop. Leave your number and we&apos;ll remind you the moment it&apos;s live.
               </p>
               <div className="mt-3 text-left">
-                <NotifyMe slug={shop.slug} productId={product.id} />
+                <NotifyMe slug={shop.slug} productId={product.id} context="drop" />
               </div>
             </div>
           ) : (
@@ -284,8 +292,18 @@ export default async function ProductPage({
             />
           </div>
 
-          {/* Out-of-stock → let buyers leave their number to be notified */}
-          {!inStock && <NotifyMe slug={shop.slug} productId={product.id} />}
+          {/* Sold out → treat it as proof the product is good, and give the
+              buyer two ways to stay: get told when it's back, or save it. */}
+          {!inStock && (
+            <OutOfStockPanel
+              slug={shop.slug}
+              productId={product.id}
+              productName={product.name}
+              price={product.price}
+              image={product.imageUrls[0] ?? null}
+              soldCount={soldCount}
+            />
+          )}
 
           {/* Trust & delivery reassurance */}
           <div className="mt-4 grid gap-2 rounded-2xl border border-line bg-surface p-3 text-xs text-ink sm:grid-cols-2">

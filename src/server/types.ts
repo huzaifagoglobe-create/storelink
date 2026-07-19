@@ -89,6 +89,8 @@ export interface Product {
   shopId: string;
   name: string;
   description: string | null;
+  /** Optional longer write-up, shown in its own tab. Good for SEO. */
+  longDescription: string | null;
   price: number;
   compareAtPrice: number | null;
   /** What the seller pays for this item (private) — powers profit tracking. */
@@ -260,6 +262,7 @@ export interface ShopInput {
 export interface ProductInput {
   name: string;
   description?: string | null;
+  longDescription?: string | null;
   price: number;
   compareAtPrice?: number | null;
   costPrice?: number | null;

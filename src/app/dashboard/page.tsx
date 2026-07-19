@@ -60,7 +60,9 @@ export default async function DashboardHome() {
         </div>
         <span className="hidden flex-none items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-muted sm:inline-flex">
           <span className={`h-1.5 w-1.5 rounded-full ${shop.isActive ? "bg-primary" : "bg-muted"}`} />
-          {planLabel} plan
+          {/* While everything is free, saying "Free trial plan" implies a
+              countdown that does not exist. */}
+          {FREE_MODE ? FREE_MODE_LABEL : `${planLabel} plan`}
         </span>
       </div>
 

@@ -21,7 +21,7 @@ const links = [
   { href: "/dashboard/reviews", label: "Reviews", d: "M11.05 3.69c.32-.66 1.58-.66 1.9 0l2.1 4.26 4.7.68c.74.1 1.04 1 .5 1.52l-3.4 3.32.8 4.68c.13.74-.65 1.3-1.3.95L12 17.6l-4.2 2.2c-.66.35-1.44-.21-1.3-.95l.8-4.68-3.4-3.32c-.54-.52-.24-1.42.5-1.52l4.7-.68Z" },
   { href: "/dashboard/team", label: "Team", d: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 11h-6M19 8v6", ownerOnly: true },
   { href: "/dashboard/plan", label: "Plan", d: "M12 19V5M5 12l7-7 7 7", ownerOnly: true },
-  { href: "/dashboard/verification", label: "Verification", d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" },
+  { href: "/dashboard/verification", label: "Verification", d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z", ownerOnly: true },
   { href: "/dashboard/settings", label: "Settings", d: "M4 21v-7M4 10V3M12 21v-11M12 6V3M20 21v-5M20 12V3M2 14h4M10 8h4M18 16h4" },
 ];
 

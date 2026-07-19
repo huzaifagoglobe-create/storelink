@@ -20,8 +20,23 @@ async function submitLead(payload: object): Promise<boolean> {
   }
 }
 
-/** Out-of-stock capture: buyer leaves their number to hear when it's back. */
-export function NotifyMe({ slug, productId }: { slug: string; productId: string }) {
+/**
+ * Buyer leaves their number to be told when a product is available.
+ *
+ * `context` matters: a product waiting on a DROP was never in stock, so telling
+ * that buyer it is "out of stock — want to know when it's back?" is simply
+ * wrong and makes the shop look careless. Sold-out products use the richer
+ * OutOfStockPanel instead; this stays for drops.
+ */
+export function NotifyMe({
+  slug,
+  productId,
+  context = "restock",
+}: {
+  slug: string;
+  productId: string;
+  context?: "restock" | "drop";
+}) {
   const [phone, setPhone] = useState("");
   const [done, setDone] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -43,15 +58,23 @@ export function NotifyMe({ slug, productId }: { slug: string; productId: string 
   if (done) {
     return (
       <div className="mt-3 rounded-2xl border border-[#bfe0cd] bg-[#EAF3EE] p-3 text-sm text-ink">
-        Done — we&apos;ll message you on WhatsApp when it&apos;s back in stock. 🎉
+        {context === "drop"
+          ? "You're on the list — we'll message you on WhatsApp the moment it goes live. 🎉"
+          : "Done — we'll message you on WhatsApp when it's back in stock. 🎉"}
       </div>
     );
   }
 
   return (
     <div className="mt-3 rounded-2xl border border-line bg-surface p-3">
-      <p className="text-sm font-medium text-ink">Out of stock — want to know when it&apos;s back?</p>
-      <p className="mb-2 text-xs text-muted">Leave your WhatsApp number and the seller will let you know.</p>
+      <p className="text-sm font-medium text-ink">
+        {context === "drop" ? "Be first in line when it drops 🔔" : "Want to know when it's back?"}
+      </p>
+      <p className="mb-2 text-xs text-muted">
+        {context === "drop"
+          ? "Leave your WhatsApp number — you'll get the message before it's public."
+          : "Leave your WhatsApp number and the seller will let you know."}
+      </p>
       <div className="flex gap-2">
         <input
           value={phone}
@@ -65,7 +88,7 @@ export function NotifyMe({ slug, productId }: { slug: string; productId: string 
           disabled={busy}
           className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
-          {busy ? "…" : "Notify me"}
+          {busy ? "…" : context === "drop" ? "Remind me" : "Notify me"}
         </button>
       </div>
       {err && <p className="mt-1 text-xs text-[#b3261e]">{err}</p>}

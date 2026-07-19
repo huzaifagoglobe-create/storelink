@@ -20,9 +20,10 @@ export function ShopBanner({ shop }: { shop: Shop }) {
     >
       {isImage && <div className="absolute inset-0 bg-black/40" />}
       <div className="relative">
-        {shop.bannerHeading && (
-          <h2 className="text-xl font-semibold leading-tight">{shop.bannerHeading}</h2>
-        )}
+        {/* Main heading of the storefront -> h1 (one per page). */}
+        <h1 className="text-xl font-semibold leading-tight">
+          {shop.bannerHeading || shop.name}
+        </h1>
         {shop.bannerSubtext && (
           <p className="mt-1 max-w-md text-sm text-white/90">{shop.bannerSubtext}</p>
         )}

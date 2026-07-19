@@ -33,3 +33,21 @@ export async function requireSeller(): Promise<SellerSession> {
   if (!session) redirect("/login");
   return session;
 }
+
+/**
+ * Like requireSeller, but also refuses staff logins.
+ *
+ * Use this for anything only the shop OWNER may do — deleting the shop,
+ * changing payout/CNIC details, managing the team, changing the plan. Hiding
+ * a button in the UI does not protect these: a Server Action is just a POST
+ * endpoint, and its id ships in the browser bundle, so a staff member can
+ * invoke it directly. The check has to live on the server, here.
+ */
+export async function requireOwner(): Promise<SellerSession> {
+  const session = await requireSeller();
+  if (!session.isOwner) {
+    // A staff account tried to do an owner-only thing.
+    redirect("/dashboard?denied=owner-only");
+  }
+  return session;
+}

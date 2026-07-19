@@ -29,6 +29,18 @@ export default async function OrderDetailPage({
   const msgShipped = `Good news ${order.customerName}! 📦\nYour order #${order.id} from ${shop.name} has been SHIPPED${order.courier ? ` with ${order.courier}` : ""}${order.trackingNumber ? `\nTracking number: ${order.trackingNumber}` : ""}.\nFollow it live: ${trackUrl}`;
   const msgDelivered = `Thank you ${order.customerName}! 💚\nHope you love your order from ${shop.name}. If anything's not right, just reply here — we fix it fast. See you again soon!`;
   const msgReview = `Thank you for shopping with ${shop.name}, ${order.customerName}! 🌟\nIf you have 30 seconds, a quick rating helps our small business a lot — just open your order page and tap the stars: ${trackUrl}\nJazakAllah! 💚`;
+
+  // Which WhatsApp message is the natural next step, given where the order is?
+  //   new       -> confirm it
+  //   confirmed -> tell them it's on its way
+  //   delivered -> thank them, then ask for a review
+  //   cancelled -> nothing to suggest
+  const updateButtons = [
+    { key: "confirm", label: "✅ Order confirmed", msg: msgConfirm, suggested: order.status === "new" },
+    { key: "shipped", label: "📦 Shipped + tracking", msg: msgShipped, suggested: order.status === "confirmed" },
+    { key: "thanks", label: "💚 Thank you", msg: msgDelivered, suggested: order.status === "delivered" },
+    { key: "review", label: "⭐ Ask for a review", msg: msgReview, suggested: false },
+  ];
   const waLink = buildCustomerWhatsappLink(order, shop.name);
 
   return (
@@ -117,19 +129,27 @@ export default async function OrderDetailPage({
         <p className="mb-3 text-xs text-muted">
           Opens WhatsApp with the message already written (order number, tracking, link — all filled in). Just press send.
         </p>
+        {/* The green highlight follows the order's CURRENT status — it marks the
+            message that makes sense to send right now. It used to be welded to
+            "Shipped", which told the seller nothing and was simply wrong once
+            the order moved on. */}
         <div className="flex flex-wrap gap-2">
-          <a href={waMsg(msgConfirm)} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-line px-3 py-2 text-xs font-medium text-ink transition hover:border-primary">
-            ✅ Order confirmed
-          </a>
-          <a href={waMsg(msgShipped)} target="_blank" rel="noopener noreferrer" className="rounded-xl bg-whatsapp px-3 py-2 text-xs font-medium text-whatsapp-foreground">
-            📦 Shipped + tracking
-          </a>
-          <a href={waMsg(msgDelivered)} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-line px-3 py-2 text-xs font-medium text-ink transition hover:border-primary">
-            💚 Thank you
-          </a>
-          <a href={waMsg(msgReview)} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-line px-3 py-2 text-xs font-medium text-ink transition hover:border-primary">
-            ⭐ Ask for a review
-          </a>
+          {updateButtons.map((b) => (
+            <a
+              key={b.key}
+              href={waMsg(b.msg)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={
+                b.suggested
+                  ? "rounded-xl bg-whatsapp px-3 py-2 text-xs font-semibold text-whatsapp-foreground shadow-sm"
+                  : "rounded-xl border border-line px-3 py-2 text-xs font-medium text-ink transition hover:border-primary"
+              }
+            >
+              {b.label}
+              {b.suggested && <span className="ml-1 opacity-80">· send this now</span>}
+            </a>
+          ))}
         </div>
       </div>
 

@@ -8,7 +8,9 @@ export const runtime = "nodejs";
 
 // Public endpoint so BUYERS (not logged in) can attach photos to a review.
 // Re-encodes through sharp (same as product images), rate-limited, size-capped.
-const MAX_BYTES = 4 * 1024 * 1024;
+// Same cap as product photos — buyers shoot on the same phones.
+// (Still re-encoded to WebP, so the stored size stays tiny.)
+const MAX_BYTES = 10 * 1024 * 1024;
 
 export async function POST(req: Request) {
   const ip = clientIp(req);
@@ -27,7 +29,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing details." }, { status: 400 });
   }
   if (file.size > MAX_BYTES) {
-    return NextResponse.json({ error: "Image must be under 4 MB." }, { status: 400 });
+    return NextResponse.json({ error: "Image must be 10 MB." }, { status: 400 });
   }
   const shop = await getShopBySlug(slug);
   if (!shop) return NextResponse.json({ error: "Shop not found." }, { status: 404 });

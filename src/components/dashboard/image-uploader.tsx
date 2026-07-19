@@ -3,6 +3,11 @@
 import { useRef, useState } from "react";
 
 const MAX_IMAGES = 5;
+// Kept in step with MAX_UPLOAD_BYTES on the server. Checking here too means a
+// seller on mobile data finds out instantly instead of uploading 10 MB first
+// and only then being told no.
+const MAX_MB = 10;
+const MAX_BYTES = MAX_MB * 1024 * 1024;
 
 export function ImageUploader({
   name = "imageUrls",
@@ -31,6 +36,11 @@ export function ImageUploader({
         if (urls.length >= max) {
           setError(`You can add up to ${MAX_IMAGES} photos.`);
           break;
+        }
+        if (file.size > MAX_BYTES) {
+          const mb = (file.size / (1024 * 1024)).toFixed(1);
+          setError(`That photo is ${mb} MB — please use one under ${MAX_MB} MB.`);
+          continue;
         }
         const fd = new FormData();
         fd.append("file", file);
@@ -112,7 +122,8 @@ export function ImageUploader({
 
       {error && <p className="mt-1 text-xs text-[#b3261e]">{error}</p>}
       <p className="mt-1 text-xs text-muted">
-        JPG, PNG, WEBP or GIF · up to 4 MB each · {MAX_IMAGES} max. The cover shows first — tap “Set cover” to change it.
+        JPG, PNG, WEBP or GIF · up to {MAX_MB} MB each · {MAX_IMAGES} max. Photos straight from your phone are fine —
+        we shrink them for you so your shop still loads fast. The cover shows first — tap “Set cover” to change it.
       </p>
     </div>
   );

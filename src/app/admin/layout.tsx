@@ -31,7 +31,7 @@ export default async function AdminLayout({
             </button>
           </form>
         </div>
-        <div className="mx-auto max-w-5xl px-4 pb-3">
+        <div className="mx-auto min-w-0 max-w-5xl overflow-hidden px-4 pb-3">
           <AdminNav />
         </div>
       </header>

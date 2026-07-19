@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getCurrentSeller } from "../auth/current-seller";
+import { getCurrentSeller, requireOwner } from "../auth/current-seller";
 import { clearSessionCookie } from "../auth/session";
 import { deleteShop } from "../services/shop-service";
 import { purgeShopStorage } from "../services/upload-service";
@@ -17,8 +17,9 @@ export async function deleteAccountAction(
   _prev: DeleteState,
   formData: FormData
 ): Promise<DeleteState> {
-  const session = await getCurrentSeller();
-  if (!session) redirect("/login");
+  // Owner-only: staff must never be able to delete the shop, even by POSTing
+  // this action's id directly (the Danger Zone is only hidden from them in UI).
+  const session = await requireOwner();
   const confirm = str(formData.get("confirm"), 120);
   if (confirm !== session.shop.slug) {
     return { error: "Type your shop link exactly to confirm." };

@@ -114,9 +114,11 @@ export async function StorefrontHome({
           <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-black/25" />
         )}
         <div className="relative">
-          <h2 className={"text-3xl font-bold leading-tight sm:text-4xl " + headFont}>
+          {/* This is the storefront's main heading, so it must be the page's
+              single <h1> — it is what Google shows and ranks for this shop. */}
+          <h1 className={"text-3xl font-bold leading-tight sm:text-4xl " + headFont}>
             {shop.bannerHeading || shop.name}
-          </h2>
+          </h1>
           {(shop.bannerSubtext || shop.tagline) && (
             <p className="mt-2 max-w-lg text-sm text-white/90">{shop.bannerSubtext || shop.tagline}</p>
           )}
@@ -147,9 +149,11 @@ export async function StorefrontHome({
         <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/10" />
         <div className="absolute -bottom-16 right-24 h-40 w-40 rounded-full bg-white/10" />
         <div className="relative">
-          <h2 className={"text-3xl font-bold leading-tight sm:text-4xl " + headFont}>
+          {/* This is the storefront's main heading, so it must be the page's
+              single <h1> — it is what Google shows and ranks for this shop. */}
+          <h1 className={"text-3xl font-bold leading-tight sm:text-4xl " + headFont}>
             {shop.bannerHeading || shop.name}
-          </h2>
+          </h1>
           {(shop.bannerSubtext || shop.tagline) && (
             <p className="mt-2 max-w-lg text-sm text-white/90">{shop.bannerSubtext || shop.tagline}</p>
           )}

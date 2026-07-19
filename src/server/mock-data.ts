@@ -250,6 +250,11 @@ const seedProducts: Product[] = [
     name: "Lawn Suit (3pc)",
     description:
       "Unstitched premium lawn, 3 pieces. Soft, breathable and summer-ready. Dupatta included.",
+    longDescription:
+      "<p><b>Fabric:</b> premium summer lawn — light, soft and breathable, so it stays comfortable even in June heat.</p>" +
+      "<p><b>What you get:</b> shirt, trouser and dupatta. Unstitched, so your darzi can fit it to you exactly.</p>" +
+      "<p><b>Care:</b> hand wash cold, dry in shade, iron on medium. The colours stay bright for years.</p>" +
+      "<p><b>Why we love it:</b> the print is block-printed by hand, so no two suits are exactly the same.</p>",
     price: 4500,
     compareAtPrice: 5500,
   costPrice: 3100,
@@ -269,6 +274,7 @@ const seedProducts: Product[] = [
     shopId: "shop-zara",
     name: "Embroidered Kurti",
     description: "Hand-embroidered cotton kurti with detailed neckline work.",
+    longDescription: null,
     price: 2200,
     compareAtPrice: null,
   costPrice: 1400,
@@ -288,6 +294,7 @@ const seedProducts: Product[] = [
     shopId: "shop-zara",
     name: "Printed Shawl",
     description: "Lightweight printed shawl, perfect for everyday wear.",
+    longDescription: null,
     price: 3800,
     compareAtPrice: null,
   costPrice: 2500,
@@ -307,6 +314,7 @@ const seedProducts: Product[] = [
     shopId: "shop-zara",
     name: "Block Heels",
     description: "Comfortable block heels with cushioned sole.",
+    longDescription: null,
     price: 5900,
     compareAtPrice: 6900,
   costPrice: 4100,
@@ -687,6 +695,7 @@ if (_zBase) {
       id: "p-demo-" + i,
       name,
       description: "Demo product, added to show the storefront grid and the Load more button.",
+      longDescription: null,
       price: 1500 + i * 350,
       compareAtPrice: i % 3 === 0 ? 1500 + i * 350 + 700 : null,
   costPrice: null,

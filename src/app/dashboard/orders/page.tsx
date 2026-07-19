@@ -26,12 +26,14 @@ export default async function OrdersPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <div>
+      {/* Wraps on a phone: the title and the buttons stack instead of pushing
+          the page sideways. flex-wrap + min-w-0 is what keeps this contained. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="text-lg font-semibold text-ink">Orders</h1>
           <p className="text-sm text-muted">{orders.length} total</p>
         </div>
-        <div className="flex flex-none items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Link href="/dashboard/orders/new" className="rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground">
             + Add WhatsApp order
           </Link>
